@@ -99,9 +99,34 @@ const PdfViewer = ({ fileUrl }) => {
     );
   };
 
+  const renderHighlights = (props) => (
+    <div>
+      {notes.map((note) => (
+        <React.Fragment key={note.id}>
+          {note.highlightAreas
+            .filter((area) => area.pageIndex === props.pageIndex)
+            .map((area, idx) => (
+              <div
+                key={idx}
+                style={Object.assign(
+                  {},
+                  {
+                    background: "yellow",
+                    opacity: 0.4,
+                  },
+                  props.getCssProperties(area, props.rotation),
+                )}
+              />
+            ))}
+        </React.Fragment>
+      ))}
+    </div>
+  );
+
   const highlightPluginInstance = highlightPlugin({
     renderHighlightTarget,
     renderHighlightContent,
+    renderHighlights,
   });
 
   return (
