@@ -21,6 +21,8 @@ const PdfViewer = ({ fileUrl }) => {
   const [notes, setNotes] = React.useState([]);
   let noteId = notes.length;
 
+  const noteEles = new Map();
+
   const renderHighlightTarget = (props) => {
     return (
       <div
@@ -99,6 +101,12 @@ const PdfViewer = ({ fileUrl }) => {
     );
   };
 
+  const jumpToNote = (note) => {
+    if (noteEles.has(note.id)) {
+      noteEles.get(note.id).scrollIntoView();
+    }
+  };
+
   const renderHighlights = (props) => (
     <div>
       {notes.map((note) => (
@@ -129,14 +137,56 @@ const PdfViewer = ({ fileUrl }) => {
     renderHighlights,
   });
 
+  const { jumpToHighlightArea } = highlightPluginInstance;
+
   return (
     <div
       style={{
         border: "1px solid rgba(0, 0, 0, 0.3)",
         height: "100%",
+        display: "flex",
         overflow: "hidden",
       }}
     >
+      <div
+        style={{
+          borderRight: "1px solid rgba(0, 0, 0, 0.3)",
+          width: "25%",
+          overflow: "auto",
+        }}
+      >
+        {notes.length === 0 && (
+          <div style={{ textAlign: "center" }}>There is no note</div>
+        )}
+        {notes.map((note) => {
+          return (
+            <div
+              key={note.id}
+              style={{
+                borderBottom: "1px solid rgba(0, 0, 0, .3)",
+                cursor: "pointer",
+                padding: "8px",
+              }}
+              // Jump to the associated highlight area
+              onClick={() => jumpToHighlightArea(note.highlightAreas[0])}
+            >
+              <blockquote
+                style={{
+                  borderLeft: "2px solid rgba(0, 0, 0, 0.2)",
+                  fontSize: ".75rem",
+                  lineHeight: 1.5,
+                  margin: "0 0 8px 0",
+                  paddingLeft: "8px",
+                  textAlign: "justify",
+                }}
+              >
+                {note.quote}
+              </blockquote>
+              {note.content}
+            </div>
+          );
+        })}
+      </div>
       <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
         <Viewer fileUrl={fileUrl} plugins={[highlightPluginInstance]} />
       </Worker>
